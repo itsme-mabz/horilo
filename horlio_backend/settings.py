@@ -82,3 +82,12 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'w01912d4.kasserver.com'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False 
+EMAIL_USE_SSL = True 
+EMAIL_HOST_USER = 'horlio@ever-growing.org' 
+EMAIL_HOST_PASSWORD = 'K5LAiEqGgBAtfsxJYzUG' 
+DEFAULT_FROM_EMAIL = 'horlio@ever-growing.org'
