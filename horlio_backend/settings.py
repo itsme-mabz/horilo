@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--_%ky&=6-y5ewb!!6-9=vwmk+2o*!j6ek#ar8)kwf&eav!c6ni'
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -91,3 +91,17 @@ EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'horlio@ever-growing.org' 
 EMAIL_HOST_PASSWORD = 'K5LAiEqGgBAtfsxJYzUG' 
 DEFAULT_FROM_EMAIL = 'horlio@ever-growing.org'
+
+AUTH_USER_MODEL = 'accounts.User'
+
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}

@@ -1,6 +1,6 @@
 from django.core.mail import EmailMessage
 from django.conf import settings
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
@@ -26,15 +26,25 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key})
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            try:
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({"token": token.key})
+            except Exception as e:
+                logger.error(f"Token creation failed: {e}")
+                return Response({"error": "Login failed due to token issue."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ResetPasswordView(generics.GenericAPIView):
     serializer_class = ResetPasswordSerializer
@@ -92,3 +102,51 @@ class PasswordResetConfirmView(generics.GenericAPIView):
         else:
             return Response({"error": "Invalid token"},
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+class AccountSettingsView(generics.RetrieveUpdateAPIView):
+    serializer_class = AccountSettingsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user  
+
+
+
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from .serializers import Enable2FASerializer, Verify2FACodeSerializer
+from .utils import send_verification_code, verify_code
+
+class Enable2FAView(generics.UpdateAPIView):
+    serializer_class = Enable2FASerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        phone_number = serializer.validated_data['phone_number']
+        send_verification_code(phone_number)
+        return Response({"detail": "Verification code sent to your phone."}, status=status.HTTP_200_OK)
+
+class Verify2FACodeView(generics.UpdateAPIView):
+    serializer_class = Verify2FACodeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        phone_number = self.request.user.phone_number
+        code = serializer.validated_data['code']
+        verification_status = verify_code(phone_number, code)
+        if verification_status == "approved":
+            self.request.user.is_2fa_enabled = True
+            self.request.user.save()
+            return Response({"detail": "2FA enabled successfully"}, status=status.HTTP_200_OK)
+        return Response({"detail": "Invalid verification code."}, status=status.HTTP_400_BAD_REQUEST)
