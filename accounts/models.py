@@ -3,6 +3,8 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 import pytz
+from django.conf import global_settings
+
 
 class CookieData(models.Model):
     data = models.JSONField()
@@ -13,19 +15,16 @@ class CookieData(models.Model):
         return f"Data {self.id} at {self.created_at}"
 
 class User(AbstractUser):
-    LANGUAGE_CHOICES = [
-        ('en', 'English'),
-        ('es', 'Spanish'),
-        ('fr', 'French'),
-        ('de', 'German'),
-        ('zh', 'Chinese'),
-        # Add more languages as needed
+    TIER_CHOICES = [
+        ('free', 'Free'),
+        ('standard', 'Standard'),
+        ('premium', 'Premium')
     ]
 
     company_name = models.CharField(max_length=255, blank=True, null=True)
-    language = models.CharField(max_length=50, choices=LANGUAGE_CHOICES, default='en')
+    language = models.CharField(max_length=50, choices=global_settings.LANGUAGES, default='en')
     newsletter_opt_in = models.BooleanField(default=True)
-
+    tier_type = models.CharField(max_length=255, choices=TIER_CHOICES, null=True)
     # Address fields
     country = models.CharField(max_length=100, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)

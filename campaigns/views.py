@@ -18,3 +18,7 @@ class CampaignDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Campaign.objects.filter(user=self.request.user)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        instance.update_progress()

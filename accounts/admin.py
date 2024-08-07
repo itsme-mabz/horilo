@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import CookieData
+from .models import CookieData, User
+
+admin.site.register(User)
 
 @admin.register(CookieData)
 class CookieDataAdmin(admin.ModelAdmin):

@@ -11,7 +11,7 @@ class AccountSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'first_name', 'last_name', 'company_name', 'language', 'newsletter_opt_in',
+            'first_name', 'last_name', 'company_name', 'tier_type', 'language', 'newsletter_opt_in',
             'country', 'city', 'street', 'house_number', 'zip_code', 'timezone', 'activity_timeframe',
             'phone_number'
         ]

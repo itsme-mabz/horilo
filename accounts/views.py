@@ -24,6 +24,7 @@ class CookieDataCreateView(generics.CreateAPIView):
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
+    permission_classes = [permissions.AllowAny]  
     serializer_class = RegisterSerializer
 
 import logging
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
+    permission_classes = [permissions.AllowAny]  
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -48,6 +50,7 @@ class LoginView(generics.GenericAPIView):
 
 class ResetPasswordView(generics.GenericAPIView):
     serializer_class = ResetPasswordSerializer
+    permission_classes = [permissions.AllowAny]  
 
     def post(self, request: HttpRequest, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -83,6 +86,7 @@ class ResetPasswordView(generics.GenericAPIView):
 
 class PasswordResetConfirmView(generics.GenericAPIView):
     serializer_class = SetNewPasswordSerializer
+    permission_classes = [permissions.AllowAny]  
 
     def post(self, request, uidb64, token, *args, **kwargs):
         try:
